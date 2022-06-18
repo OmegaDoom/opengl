@@ -1,0 +1,47 @@
+#include "Window.hpp"
+#include "Scene.hpp"
+#include "WindowBehavior.hpp"
+#include "CameraBehavior.hpp"
+#include "TextureManager.hpp"
+#include "ShaderManager.hpp"
+#include <GL/glew.h> 
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <filesystem>
+
+int main(int argc, char* argv[])
+{
+    std::filesystem::current_path(std::filesystem::path(argv[0]).stem());
+    std::cout << std::filesystem::current_path() << std::endl;
+    //Window window(800, 600);
+    Window window;
+
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+        std::cout << "glewInit failed" << std::endl;
+        return 1;
+    }
+
+    auto& textureManager = TextureManager::instance();
+
+    auto& shaderManager = ShaderManager::instance();
+    shaderManager.Load("textureMaterial");
+    shaderManager.Load("material");
+
+    Scene scene;
+
+    scene.ChangeDimension(window.Width(), window.Height());
+    window.DimensionChangedEvent([&scene] (auto width, auto height) { scene.ChangeDimension(width, height); });
+    WindowBehavior windowBehavior(window);
+    CameraBehavior cameraBehavior(scene.getCamera(), window);
+
+    while(window.Process())
+    {
+        glfwPollEvents();
+        cameraBehavior.Process();
+        windowBehavior.Process();
+        scene.Update();
+        scene.Render();
+    }
+}

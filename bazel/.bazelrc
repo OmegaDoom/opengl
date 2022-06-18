@@ -1,0 +1,6 @@
+build:gcc --repo_env=CC=gcc
+build:gcc --copt="-std=c++17"
+
+startup:vs --windows_enable_symlinks
+build:vs --enable_runfiles
+build:vs --copt="/std:c++17"
